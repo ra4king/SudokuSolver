@@ -66,6 +66,7 @@ public class SudokuSolver {
 			}
 		} catch(Exception exc) {
 			exc.printStackTrace();
+			return;
 		}
 		
 		int dotIndex = fileName.lastIndexOf('.');
@@ -85,15 +86,25 @@ public class SudokuSolver {
 		try(FileWriter fileWriter = new FileWriter(new File(outputFileName))) {
 			int[][] solved = solver.getPuzzle();
 			
+			fileWriter.write("+-----------------------+\n");
 			for(int y = 0; y < 9; y++) {
+				if(y > 0 && y % 3 == 0)
+					fileWriter.write("|-------+-------+-------|\n");
+				
 				for(int x = 0; x < 9; x++) {
+					if(x % 3 == 0)
+						fileWriter.write("| ");
+					
 					if(solved[x][y] == 0)
 						fileWriter.write(' ');
 					else
 						fileWriter.write('0' + solved[x][y]);
+					
+					fileWriter.write(' ');
 				}
-				fileWriter.write('\n');
+				fileWriter.write("|\n");
 			}
+			fileWriter.write("+-----------------------+");
 		} catch(Exception exc) {
 			exc.printStackTrace();
 		}
@@ -177,6 +188,7 @@ public class SudokuSolver {
 							// clone the puzzle, remove the first possible solution, and assigns it
 							Cell[][] newPuzzle = clone(puzzle);
 							newPuzzle[x][y].value = puzzle[x][y].possibleSolutions.remove(0);
+							newPuzzle[x][y].possibleSolutions.clear();
 							
 							// recursive call! if solve returns false, then we loop back and try the next possible solution
 							if(solve(newPuzzle)) {
@@ -253,11 +265,6 @@ public class SudokuSolver {
 				colFilledCount++;
 		}
 		
-		if(rowFilledCount == 8)
-			return SolutionCase.DEFINITE_SOLUTION;
-		if(colFilledCount == 8)
-			return SolutionCase.DEFINITE_SOLUTION;
-		
 		int ix = x / 3;
 		int iy = y / 3;
 		
@@ -274,7 +281,7 @@ public class SudokuSolver {
 				cellFilledCount++;
 		}
 		
-		if(cellFilledCount == 8)
+		if(rowFilledCount == 8 || colFilledCount == 8 || cellFilledCount == 8)
 			return SolutionCase.DEFINITE_SOLUTION;
 		
 		return SolutionCase.POSSIBLE_SOLUTION;
