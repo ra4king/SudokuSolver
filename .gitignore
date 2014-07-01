@@ -1,0 +1,5 @@
+.idea/*
+out/*
+puzzles/*
+*.iml
+hs_err_pid*
